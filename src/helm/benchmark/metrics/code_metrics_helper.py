@@ -30,7 +30,6 @@ from typing import List, Union, Dict, Optional
 from unittest.mock import patch, mock_open
 
 import numpy as np
-from pyext import RuntimeModule
 
 from helm.common.hierarchical_logger import hlog
 
@@ -56,6 +55,13 @@ signal.signal(signal.SIGALRM, timeout_handler)
 #   runs that are just too slow. We thus make this variable settable in `run_test`.
 # timeout = 4  # seconds
 
+class RuntimeModule:
+    @staticmethod
+    def from_string(name, docstring, code):
+        module = types.ModuleType(name)
+        module.__doc__ = docstring
+        exec(code, module.__dict__)
+        return module
 
 # used to capture stdout as a list
 # from https://stackoverflow.com/a/16571630/6416660
