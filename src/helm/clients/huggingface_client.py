@@ -94,17 +94,9 @@ class HuggingFaceServer:
                         pretrained_model_name_or_path, export=True, trust_remote_code=True, **kwargs
                     ).to(self.device)
             else:
-                # Security issue: currently we trust remote code by default.
-                # We retain this temporarily to maintain reverse compatibility.
-                # TODO: Delete if-else and don't set trust_remote_code=True
-                if "trust_remote_code" in kwargs:
-                    self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs).to(
-                        self.device
-                    )
-                else:
-                    self.model = AutoModelForCausalLM.from_pretrained(
-                        pretrained_model_name_or_path, trust_remote_code=True, **kwargs
-                    ).to(self.device)
+                self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, torch_dtype=torch.bfloat16, use_flash_attention_2=True, **kwargs).to(
+                    self.device
+                )
         self.wrapped_tokenizer = wrapped_tokenizer
 
     def serve_request(self, raw_request: HuggingFaceRequest) -> Dict:
